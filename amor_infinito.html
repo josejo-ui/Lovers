@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Te amo Angie ❤️</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root{
+      --red:#e60023;
+      --pink:#ff2d78;
+      --rose:#ff4d88;
+      --magenta:#cc0077;
+      --shadow: 0 8px 24px rgba(0,0,0,.18);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:#ffffff;
+      overflow:hidden;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#111;
+    }
+
+    /* Center message (always on top, never blocks clicks) */
+    #mainMessage{
+      position:fixed;
+      left:50%; top:50%;
+      transform:translate(-50%,-50%);
+      font-size:clamp(22px, 5vw, 40px);
+      line-height:1.25;
+      font-weight:900;
+      color:var(--red);
+      text-align:center;
+      text-shadow: 0 0 0 rgba(0,0,0,0), 0 2px 0 #fff;
+      padding:10px 14px;
+      border-radius:16px;
+      pointer-events:none;
+      z-index:1000;
+      opacity:0;
+      transition: opacity .9s ease;
+    }
+
+    /* Start button */
+    #surpriseButton{
+      position:fixed;
+      left:50%; top:50%;
+      transform:translate(-50%,-50%);
+      padding:14px 22px;
+      font-size:clamp(16px, 3.8vw, 20px);
+      border:none; border-radius:999px;
+      color:#fff; background:linear-gradient(135deg, var(--pink), var(--magenta));
+      cursor:pointer; box-shadow: var(--shadow);
+      z-index:1100;
+      transition: transform .15s ease, opacity .4s ease;
+    }
+    #surpriseButton:active{ transform: translate(-50%,-50%) scale(.96) }
+
+    /* Floating items (phrases/emojis) */
+    .floating{
+      position:fixed;
+      bottom:-12vh;
+      font-weight:800;
+      opacity:1;
+      white-space:nowrap;
+      pointer-events:none;
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,.1));
+      animation: floatUp linear forwards;
+      will-change: transform, opacity;
+    }
+    @keyframes floatUp{
+      0%   { transform: translateY(0) scale(.9); opacity:1 }
+      80%  { opacity:1 }
+      100% { transform: translateY(-115vh) scale(1.15); opacity:1 }
+    }
+  </style>
+</head>
+<body>
+  <button id="surpriseButton" onclick="startShow()">🎁 Sorpresa</button>
+  <div id="mainMessage">Te amo Angie, eres el amor de mi vida ❤️</div>
+
+  <script>
+    // Content pools
+    const FRASES = [
+      "Te amo chiquilla","Te amo","Amorcito","Chiquilla de mi corazón"
+    ];
+    const EMOJIS = ["❤️","💋","🌹","💞","💕","😍","✨","🥰","💖","💘","🌸","🎀","💐"];
+
+    // Strong, vivid colors for visibility on white
+    const COLORS = ["#e60023","#ff2d78","#ff4d88","#ff0066","#ff3366","#d10073"];
+
+    // Helpers
+    const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+    function randomLeftAvoidCenter(){
+      // Avoid the central safe zone between 36vw and 64vw so it never crosses the center message
+      let x;
+      do { x = Math.random()*100; } while (x > 36 && x < 64);
+      return x + "vw";
+    }
+
+    function createFloating(content, isEmoji=false){
+      const el = document.createElement("span");
+      el.className = "floating";
+      el.textContent = content;
+      el.style.left = randomLeftAvoidCenter();
+      el.style.color = pick(COLORS);
+      // Sizes: emojis larger, phrases varied but readable
+      const size = isEmoji ? (28 + Math.random()*40) : (16 + Math.random()*16);
+      el.style.fontSize = size + "px";
+      // Different speeds (longer so they don't vanish too fast)
+      const dur = 9 + Math.random()*8; // 9s - 17s
+      el.style.animationDuration = dur + "s";
+
+      document.body.appendChild(el);
+      setTimeout(()=> el.remove(), (dur+0.2)*1000);
+    }
+
+    // Start sequence
+    function startShow(){
+      const btn = document.getElementById("surpriseButton");
+      const msg = document.getElementById("mainMessage");
+      // Hide button smoothly and show message
+      btn.style.opacity = "0";
+      setTimeout(()=> btn.remove(), 400);
+      msg.style.opacity = "1";
+
+      // Start infinite spawning of phrases and emojis
+      // Faster at first burst, then steady rhythm
+      for(let i=0;i<18;i++){
+        createFloating(pick(FRASES));
+        createFloating(pick(EMOJIS), true);
+      }
+      setInterval(()=>{
+        createFloating(pick(FRASES));
+        createFloating(pick(EMOJIS), true);
+      }, 420); // ~2 items every ~0.42s
+    }
+
+    // Fallback in case some browsers defer inline handlers
+    window.startShow = startShow;
+  </script>
+</body>
+</html>
